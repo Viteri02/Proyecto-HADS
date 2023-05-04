@@ -10,6 +10,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "rrweb": "^2.0.0-alpha.4",
+    "rrweb-player": "^1.0.0-alpha.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
