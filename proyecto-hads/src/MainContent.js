@@ -1,16 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
+import { RRwebPlayer } from "rrweb-player";
 
 function MainContent({ activeContent }) {
+  const [webpage, setWebpage] = useState("");
+  const [videos, setVideos] = useState([]);
+
+  const handleWebpageChange = (event) => {
+    setWebpage(event.target.value);
+  };
+
+  const handleButtonClick = () => {
+    // Abre la página web en RRWeb
+    window.open(webpage, "_blank");
+  };
+
+  const handleVideoClick = (videoUrl) => {
+    const player = new RRwebPlayer({
+      target: document.getElementById("video-container"),
+      props: {
+        events: JSON.parse(atob(videoUrl)),
+      },
+    });
+    player.play();
+  };
+
   const renderContent = () => {
     switch (activeContent) {
       case "Grabar":
         return (
           <div>
             <h2>Contenido de Grabar</h2>
-            <p>
-              Aquí puedes agregar contenido relacionado con la función de
-              grabar.
-            </p>
+            <form>
+              <label htmlFor="webpage-input">Página Web:</label>
+              <input
+                type="text"
+                id="webpage-input"
+                value={webpage}
+                onChange={handleWebpageChange}
+              />
+              <button type="button" onClick={handleButtonClick}>
+                Grabar
+              </button>
+            </form>
           </div>
         );
       case "Videos":
@@ -22,21 +53,24 @@ function MainContent({ activeContent }) {
                 <tr>
                   <th>Video</th>
                   <th>Duración</th>
+                  <th>Acción</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Video 1</td>
-                  <td>3:25</td>
-                </tr>
-                <tr>
-                  <td>Video 2</td>
-                  <td>4:10</td>
-                </tr>
-                <tr>
-                  <td>Video 3</td>
-                  <td>2:55</td>
-                </tr>
+                {videos.map((video, index) => (
+                  <tr key={index}>
+                    <td>{video.name}</td>
+                    <td>{video.duration}</td>
+                    <td>
+                      <button
+                        className="play-button"
+                        onClick={() => handleVideoClick(video.url)}
+                      >
+                        Reproducir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -46,7 +80,12 @@ function MainContent({ activeContent }) {
     }
   };
 
-  return <div className="main-content">{renderContent()}</div>;
+  return (
+    <div className="main-content">
+      {renderContent()}
+      <div id="video-container"></div>
+    </div>
+  );
 }
 
 export default MainContent;
