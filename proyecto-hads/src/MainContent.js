@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { RRwebPlayer } from "rrweb-player";
+import rrwebPlayer from 'rrweb-player';
+import 'rrweb-player/dist/style.css';
 
 function MainContent({ activeContent }) {
   const [webpage, setWebpage] = useState("");
@@ -15,7 +16,7 @@ function MainContent({ activeContent }) {
   };
 
   const handleVideoClick = (videoUrl) => {
-    const player = new RRwebPlayer({
+    const player = new rrwebPlayer({
       target: document.getElementById("video-container"),
       props: {
         events: JSON.parse(atob(videoUrl)),

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import MainContent from "./MainContent";
 
+
 function App() {
   const [activeContent, setActiveContent] = useState("");
 
