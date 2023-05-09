@@ -1,18 +1,26 @@
 import React, { useState } from "react";
-import rrwebPlayer from 'rrweb-player';
-import 'rrweb-player/dist/style.css';
+import rrwebPlayer from "rrweb-player";
+import "rrweb-player/dist/style.css";
+
+import * as rrweb from "rrweb";
+
+import { record } from "rrweb";
 
 function MainContent({ activeContent }) {
   const [webpage, setWebpage] = useState("");
   const [videos, setVideos] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const handleWebpageChange = (event) => {
     setWebpage(event.target.value);
   };
 
   const handleButtonClick = () => {
-    // Abre la página web en RRWeb
-    window.open(webpage, "_blank");
+    rrweb.record({
+      emit(event) {
+        setEvents((prevEvents) => [...prevEvents, event]);
+      },
+    });
   };
 
   const handleVideoClick = (videoUrl) => {
@@ -45,6 +53,7 @@ function MainContent({ activeContent }) {
             </form>
           </div>
         );
+
       case "Videos":
         return (
           <div>
@@ -74,8 +83,32 @@ function MainContent({ activeContent }) {
                 ))}
               </tbody>
             </table>
+            {events.length > 0 && (
+              <div>
+                <h2>Contenido de Grabación</h2>
+                <button
+                  className="play-button"
+                  onClick={() =>
+                    setVideos((prevVideos) => [
+                      ...prevVideos,
+                      {
+                        name: "Grabación",
+                        duration: `${
+                          events[events.length - 1].timestamp -
+                          events[0].timestamp
+                        } ms`,
+                        url: btoa(JSON.stringify(events)),
+                      },
+                    ])
+                  }
+                >
+                  Finalizar Grabación
+                </button>
+              </div>
+            )}
           </div>
         );
+
       default:
         return null;
     }
