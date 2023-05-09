@@ -4,7 +4,8 @@ import "rrweb-player/dist/style.css";
 
 import * as rrweb from "rrweb";
 
-import { record } from "rrweb";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 
 function MainContent({ activeContent }) {
   const [webpage, setWebpage] = useState("");
@@ -61,24 +62,23 @@ function MainContent({ activeContent }) {
             <table>
               <thead>
                 <tr>
+                  <th>Acción</th>
                   <th>Video</th>
                   <th>Duración</th>
-                  <th>Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {videos.map((video, index) => (
                   <tr key={index}>
+                    <td>
+                      <FontAwesomeIcon
+                        icon={faPlayCircle}
+                        onClick={() => handleVideoClick(video.url)}
+                        className="play-icon"
+                      />
+                    </td>
                     <td>{video.name}</td>
                     <td>{video.duration}</td>
-                    <td>
-                      <button
-                        className="play-button"
-                        onClick={() => handleVideoClick(video.url)}
-                      >
-                        Reproducir
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
