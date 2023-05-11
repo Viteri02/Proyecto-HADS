@@ -4,8 +4,6 @@ import "rrweb-player/dist/style.css";
 
 import * as rrweb from "rrweb";
 
-import { record } from "rrweb";
-
 function MainContent({ activeContent }) {
   const [webpage, setWebpage] = useState("");
   const [videos, setVideos] = useState([]);
@@ -14,6 +12,29 @@ function MainContent({ activeContent }) {
   const handleWebpageChange = (event) => {
     setWebpage(event.target.value);
   };
+
+  fetch('replayss.html')
+  .then(response => response.text())
+  .then(html => {
+    const eventsRegex = /const events = (.*?);/;
+    const match = eventsRegex.exec(html);
+    if (match && match[1]) {
+      const eventsContent = match[1].trim();
+      console.log(eventsContent);
+      //const eventos = JSON.stringify(eventsContent);
+      //console.log(eventos);
+      setEvents(eventsContent);
+    } else {
+      console.error('No se encontró la variable events en el archivo HTML.');
+    }
+  })
+  .catch(error => {
+    console.error('Error al cargar el archivo HTML:', error);
+  });
+
+
+
+
 
   const handleButtonClick = () => {
     rrweb.record({
@@ -24,14 +45,12 @@ function MainContent({ activeContent }) {
   };
 
   const handleVideoClick = (videoUrl) => {
-    const player = new rrwebPlayer({
-      target: document.getElementById("video-container"),
-      props: {
-        events: JSON.parse(atob(videoUrl)),
-      },
-    });
-    player.play();
+    const eventsData = JSON.parse(events);
+    const replayer = new rrweb.Replayer(eventsData);
+    replayer.play();
   };
+  
+  
 
   const renderContent = () => {
     switch (activeContent) {
@@ -67,20 +86,14 @@ function MainContent({ activeContent }) {
                 </tr>
               </thead>
               <tbody>
-                {videos.map((video, index) => (
-                  <tr key={index}>
-                    <td>{video.name}</td>
-                    <td>{video.duration}</td>
-                    <td>
-                      <button
-                        className="play-button"
-                        onClick={() => handleVideoClick(video.url)}
-                      >
-                        Reproducir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                <td>
+                    <button
+                    className="play-button"
+                    onClick={() => handleVideoClick("a")}
+                    >
+                    Reproducir
+                    </button>
+                </td>
               </tbody>
             </table>
             {events.length > 0 && (
