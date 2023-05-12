@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import rrwebPlayer from "rrweb-player";
 import "rrweb-player/dist/style.css";
 
 import * as rrweb from "rrweb";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 
 function MainContent({ activeContent }) {
   const [webpage, setWebpage] = useState("");
@@ -16,28 +13,15 @@ function MainContent({ activeContent }) {
     setWebpage(event.target.value);
   };
 
-  fetch('replayss.html')
-  .then(response => response.text())
-  .then(html => {
-    const eventsRegex = /const events = (.*?);/;
-    const match = eventsRegex.exec(html);
-    if (match && match[1]) {
-      const eventsContent = match[1].trim();
-      console.log(eventsContent);
-      //const eventos = JSON.stringify(eventsContent);
-      //console.log(eventos);
-      setEvents(eventsContent);
-    } else {
-      console.error('No se encontró la variable events en el archivo HTML.');
-    }
-  })
-  .catch(error => {
-    console.error('Error al cargar el archivo HTML:', error);
-  });
+  const loadEvents = async () => {
+    const response = await fetch("../replays/");
+    const jsonData = await response.json();
+    setEvents(jsonData);
+  };
 
-
-
-
+  useEffect(() => {
+    loadEvents();
+  }, []);
 
   const handleButtonClick = () => {
     rrweb.record({
@@ -47,13 +31,16 @@ function MainContent({ activeContent }) {
     });
   };
 
-  const handleVideoClick = (videoUrl) => {
-    const eventsData = JSON.parse(events);
-    const replayer = new rrweb.Replayer(eventsData);
-    replayer.play();
+  const handleVideoClick = (videoIndex) => {
+    const eventsData = videos[videoIndex].events;
+    const player = new rrwebPlayer({
+      target: document.getElementById("video-container"),
+      data: {
+        events: eventsData,
+      },
+    });
+    player.play();
   };
-  
-  
 
   const renderContent = () => {
     switch (activeContent) {
@@ -92,11 +79,12 @@ function MainContent({ activeContent }) {
                 {videos.map((video, index) => (
                   <tr key={index}>
                     <td>
-                      <FontAwesomeIcon
-                        icon={faPlayCircle}
-                        onClick={() => handleVideoClick(video.url)}
-                        className="play-icon"
-                      />
+                      <button
+                        type="button"
+                        onClick={() => handleVideoClick(index)}
+                      >
+                        Reproducir
+                      </button>
                     </td>
                     <td>{video.name}</td>
                     <td>{video.duration}</td>
@@ -118,7 +106,7 @@ function MainContent({ activeContent }) {
                           events[events.length - 1].timestamp -
                           events[0].timestamp
                         } ms`,
-                        url: btoa(JSON.stringify(events)),
+                        events: [...events],
                       },
                     ])
                   }
