@@ -33,13 +33,35 @@ function MainContent({ activeContent }) {
 
   const handleVideoClick = (videoIndex) => {
     const eventsData = videos[videoIndex].events;
-    const player = new rrwebPlayer({
-      target: document.getElementById("video-container"),
-      data: {
-        events: eventsData,
-      },
-    });
-    player.play();
+    const playerWindow = window.open("", "_blank");
+
+    if (playerWindow) {
+      const playerHTML = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Reproductor rrweb</title>
+            <link rel="stylesheet" type="text/css" href="https://unpkg.com/rrweb-player/dist/style.css">
+          </head>
+          <body>
+            <div id="player-container"></div>
+            
+            <script src="https://unpkg.com/rrweb-player"></script>
+            <script>
+              const eventsData = ${JSON.stringify(eventsData)};
+              const player = new rrwebPlayer({
+                target: document.getElementById("player-container"),
+                data: { events: eventsData },
+              });
+              player.play();
+            </script>
+          </body>
+        </html>
+      `;
+
+      playerWindow.document.write(playerHTML);
+      playerWindow.document.close();
+    }
   };
 
   const renderContent = () => {
