@@ -1,23 +1,43 @@
 import React, { useState, useEffect } from "react";
 import rrwebPlayer from "rrweb-player";
 import "rrweb-player/dist/style.css";
-
 import * as rrweb from "rrweb";
+import filenames from './filenames.json';
+
 
 function MainContent({ activeContent }) {
   const [webpage, setWebpage] = useState("");
-  const [videos, setVideos] = useState([]);
   const [events, setEvents] = useState([]);
+  const [files, setFiles] = useState(filenames);
 
   const handleWebpageChange = (event) => {
     setWebpage(event.target.value);
   };
 
+  const convertToSeconds = (milliseconds) => {
+    const seconds = Math.floor(milliseconds / 1000);
+    return seconds;
+  };  
+
   const loadEvents = async () => {
-    const response = await fetch("../replays/");
-    const jsonData = await response.json();
-    setEvents(jsonData);
+    try {
+      const directoryPath = './replays';
+      const fileNamesWithExtension = files.map(fileName => `${fileName}.json`);
+      const tempEvents = [];
+  
+      for (const fileName of fileNamesWithExtension) {
+        const filePath = `${directoryPath}/${fileName}`;
+        const response = await fetch(filePath);
+        const jsonData = await response.json();
+        tempEvents.push(jsonData);
+      }
+  
+      setEvents(prevEvents => [...prevEvents, ...tempEvents]);
+    } catch (error) {
+      console.error('Error al cargar los eventos:', error);
+    }
   };
+  
 
   useEffect(() => {
     loadEvents();
@@ -31,15 +51,42 @@ function MainContent({ activeContent }) {
     });
   };
 
-  const handleVideoClick = (videoIndex) => {
-    const eventsData = videos[videoIndex].events;
-    const player = new rrwebPlayer({
-      target: document.getElementById("video-container"),
-      data: {
-        events: eventsData,
-      },
-    });
-    player.play();
+  const handleVideoClick = (index) => {
+    const eventsData = events[index];
+    const playerWindow = window.open("", "_blank");
+
+    if (playerWindow) {
+      const playerHTML = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Reproductor rrweb</title>
+            <link rel="stylesheet" type="text/css" href="https://unpkg.com/rrweb-player/dist/style.css">
+          </head>
+          <body>
+            <div id="player-container"></div>
+            
+            <script src="https://unpkg.com/rrweb-player"></script>
+            <script>
+              const eventsData = ${JSON.stringify(eventsData)};
+              const player = new rrwebPlayer({
+                target: document.getElementById("player-container"),
+                data: { events: eventsData },
+              });
+              player.play();
+            </script>
+          </body>
+        </html>
+      `;
+
+      playerWindow.document.write(playerHTML);
+      playerWindow.document.close();
+    }
+    // const player = new rrwebPlayer({
+    //   target: document.getElementById("video-container"),
+    //   data: {
+    //     events: eventsData,
+    //   },
   };
 
   const renderContent = () => {
@@ -62,62 +109,56 @@ function MainContent({ activeContent }) {
             </form>
           </div>
         );
-
-      case "Videos":
-        return (
-          <div>
-            <h2>Contenido de Ver Videos</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Acción</th>
-                  <th>Video</th>
-                  <th>Duración</th>
-                </tr>
-              </thead>
-              <tbody>
-                {videos.map((video, index) => (
-                  <tr key={index}>
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() => handleVideoClick(index)}
-                      >
-                        Reproducir
-                      </button>
-                    </td>
-                    <td>{video.name}</td>
-                    <td>{video.duration}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {events.length > 0 && (
+        case "Videos":
+            return (
               <div>
-                <h2>Contenido de Grabación</h2>
-                <button
-                  className="play-button"
-                  onClick={() =>
-                    setVideos((prevVideos) => [
-                      ...prevVideos,
-                      {
-                        name: "Grabación",
-                        duration: `${
-                          events[events.length - 1].timestamp -
-                          events[0].timestamp
-                        } ms`,
-                        events: [...events],
-                      },
-                    ])
-                  }
-                >
-                  Finalizar Grabación
-                </button>
+                <h2>Contenido de Ver Videos</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Acción</th>
+                      <th>Video</th>
+                      <th>Duración</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {files.map((nombre, index) => (
+                    <tr key={index}>
+                     <td>
+                        <button type="button" onClick={() => handleVideoClick(index)}>
+                        Reproducir
+                        </button>
+                     </td>
+                     <td>{nombre}</td>
+                     <td>{convertToSeconds(events[index][events[index].length - 1].timestamp - events[index][0].timestamp)} Seconds</td>
+                    </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {events.length > 0 && (
+                  <div>
+                    <h2>Contenido de Grabación</h2>
+                    <button
+                      className="play-button"
+                      onClick={() =>
+                        setEvents((prevEvents) => [
+                          ...prevEvents,
+                          {
+                            name: "Grabación",
+                            duration: `${
+                              events[events.length - 1].timestamp - events[0].timestamp
+                            } ms`,
+                            events: [...events],
+                          },
+                        ])
+                      }
+                    >
+                      Finalizar Grabación
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        );
-
+            );
       default:
         return null;
     }
