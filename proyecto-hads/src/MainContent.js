@@ -51,13 +51,8 @@ function MainContent({ activeContent }) {
     });
   };
 
-<<<<<<< HEAD
   const handleVideoClick = (index) => {
     const eventsData = events[index];
-=======
-  const handleVideoClick = (videoIndex) => {
-    const eventsData = videos[videoIndex].events;
->>>>>>> 6da003da76d83cdb85c4e05e5224af0cf19dc5c8
     const playerWindow = window.open("", "_blank");
 
     if (playerWindow) {
@@ -87,14 +82,6 @@ function MainContent({ activeContent }) {
       playerWindow.document.write(playerHTML);
       playerWindow.document.close();
     }
-<<<<<<< HEAD
-    // const player = new rrwebPlayer({
-    //   target: document.getElementById("video-container"),
-    //   data: {
-    //     events: eventsData,
-    //   },
-=======
->>>>>>> 6da003da76d83cdb85c4e05e5224af0cf19dc5c8
   };
 
   const renderContent = () => {
