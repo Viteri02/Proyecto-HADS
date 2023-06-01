@@ -2,7 +2,9 @@ body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  
+  background-image: url("./background.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .app {
@@ -10,11 +12,12 @@ body {
 }
 
 .sidebar {
-  background-color: #f2f2f2;
+  background-color: transparent;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  border-color: #000000;
 }
 
 .sidebar h2 {
@@ -53,20 +56,58 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  background-color: transparent;
 }
 
 th,
 td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #000000;
 }
 
 th {
-  background-color: #f2f2f2;
+   background-color: transparent;
   font-weight: bold;
 }
 
 tbody tr:hover {
-  background-color: #f9f9f9;
+  background-color: #9ed4f8;
 }
+
+.busqueda {
+    background-color: transparent;
+}
+
+.play-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: #fff;
+    cursor: pointer;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  .center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  h2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .button-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
